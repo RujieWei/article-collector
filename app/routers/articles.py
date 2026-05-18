@@ -29,6 +29,8 @@ class ArticleResponse(BaseModel):
 
 
 async def _process_article(article_id: str, url: str, source: str):
+    import logging
+    logger = logging.getLogger(__name__)
     try:
         if source == "wechat":
             result = await extract_wechat_article(url, article_id)
@@ -42,7 +44,9 @@ async def _process_article(article_id: str, url: str, source: str):
             "content": result["content"],
             "status": "completed",
         }).eq("id", article_id).execute()
-    except Exception:
+        logger.info(f"Article {article_id} extracted successfully: {result['title']}")
+    except Exception as e:
+        logger.error(f"Article {article_id} extraction failed: {e}", exc_info=True)
         supabase.table("articles").update({"status": "failed"}).eq("id", article_id).execute()
 
 

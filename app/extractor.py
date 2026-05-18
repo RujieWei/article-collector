@@ -7,7 +7,12 @@ from app.storage import upload_image
 
 async def extract_wechat_article(url: str, article_id: str) -> dict:
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        browser = await p.chromium.launch(args=[
+            "--disable-dev-shm-usage",
+            "--disable-gpu",
+            "--no-sandbox",
+            "--single-process",
+        ])
         page = await browser.new_page()
         await page.goto(url, wait_until="networkidle", timeout=30000)
 
