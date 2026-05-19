@@ -30,7 +30,7 @@ async def upload_image(article_id: str, image_url: str) -> str | None:
     supabase.storage.from_(BUCKET_NAME).upload(
         path,
         image_data,
-        {"content-type": content_type},
+        {"content-type": content_type, "upsert": "true"},
     )
 
     public_url = f"{settings.supabase_url}/storage/v1/object/public/{BUCKET_NAME}/{path}"
