@@ -5,3 +5,4 @@ supabase
 python-dotenv
 httpx
 pydantic-settings
+beautifulsoup4
