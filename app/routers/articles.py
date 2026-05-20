@@ -60,7 +60,7 @@ async def _process_article(article_id: str, url: str, source: str, html_content:
         supabase.table("articles").update({"status": "failed"}).eq("id", article_id).execute()
 
 
-@router.post("", response_model=ArticleResponse)
+@router.post("", response_model=ArticleResponse, summary="Submit article for collection", description="Submit a WeChat article URL (with optional pre-extracted HTML content). Returns the created article record. Content extraction runs in the background.")
 async def create_article(body: ArticleCreate, background_tasks: BackgroundTasks):
     existing = supabase.table("articles").select("id").eq("url", body.url).execute()
     if existing.data:
@@ -85,7 +85,21 @@ async def create_article(body: ArticleCreate, background_tasks: BackgroundTasks)
     return result.data[0]
 
 
-@router.get("")
+@router.get("/search", summary="Search articles by keyword", description="Search collected articles by keyword. Matches against title and content fields. Returns a list of matching articles (without full content). Use GET /articles/{id} to retrieve full content of a specific article.")
+async def search_articles(q: str, limit: int = 10):
+    result = (
+        supabase.table("articles")
+        .select("id, url, title, author, source, created_at")
+        .eq("status", "completed")
+        .or_(f"title.ilike.%{q}%,content.ilike.%{q}%")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return result.data
+
+
+@router.get("", summary="List all articles", description="List all collected articles ordered by date (newest first). Returns article metadata without full content.")
 async def list_articles(limit: int = 20, offset: int = 0):
     result = (
         supabase.table("articles")
@@ -97,7 +111,7 @@ async def list_articles(limit: int = 20, offset: int = 0):
     return result.data
 
 
-@router.get("/{article_id}")
+@router.get("/{article_id}", summary="Get article detail", description="Get full article content including title, author, and markdown-formatted body text. Use this to read the complete article after finding it via search or list.")
 async def get_article(article_id: str):
     result = supabase.table("articles").select("*").eq("id", article_id).execute()
     if not result.data:
