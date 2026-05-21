@@ -17,7 +17,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://article-collector-web.vercel.app",
+        "https://article-collector-luuu.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
