@@ -8,6 +8,7 @@ app = FastAPI(
     title="Article Collector",
     version="0.1.0",
     description="Personal article collection and search API. Collects WeChat articles and provides search/retrieval for ChatGPT integration.",
+    servers=[{"url": "https://article-collector-rjt3.onrender.com"}],
 )
 
 
