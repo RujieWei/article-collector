@@ -42,6 +42,18 @@ export async function getArticle(id: string): Promise<Article> {
   return res.json();
 }
 
+export async function searchArticles(
+  q: string,
+  limit = 10
+): Promise<Article[]> {
+  const res = await fetch(
+    `${API_BASE}/api/v1/articles/search?q=${encodeURIComponent(q)}&limit=${limit}`,
+    { headers: headers(), cache: "no-store" }
+  );
+  if (!res.ok) throw new Error("Failed to search articles");
+  return res.json();
+}
+
 export async function deleteArticle(id: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/v1/articles/${id}`, {
     method: "DELETE",

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getArticles } from "@/lib/api";
+import { getArticles, searchArticles } from "@/lib/api";
 import { DeleteButton } from "./delete-button";
+import { SearchBar } from "./search-bar";
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
@@ -17,14 +18,24 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default async function Home() {
-  const articles = await getArticles();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+  const articles = q ? await searchArticles(q) : await getArticles();
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">文章列表</h1>
+      <h1 className="mb-6 text-2xl font-bold">
+        {q ? `搜索：${q}` : "文章列表"}
+      </h1>
+      <SearchBar />
       {articles.length === 0 ? (
-        <p className="text-gray-500">暂无文章</p>
+        <p className="text-gray-500">
+          {q ? "未找到相关文章" : "暂无文章"}
+        </p>
       ) : (
         <div className="space-y-3">
           {articles.map((article) => (
