@@ -117,3 +117,25 @@ async def get_article(article_id: str):
     if not result.data:
         raise HTTPException(status_code=404, detail="Article not found")
     return result.data[0]
+
+
+class NotesUpdate(BaseModel):
+    notes: str
+
+
+@router.patch("/{article_id}", summary="Update article notes", description="Update the personal notes field of an article.")
+async def update_article_notes(article_id: str, body: NotesUpdate):
+    existing = supabase.table("articles").select("id").eq("id", article_id).execute()
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Article not found")
+    result = supabase.table("articles").update({"notes": body.notes}).eq("id", article_id).execute()
+    return result.data[0]
+
+
+@router.delete("/{article_id}", summary="Delete article", description="Permanently delete an article and its data.")
+async def delete_article(article_id: str):
+    existing = supabase.table("articles").select("id").eq("id", article_id).execute()
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Article not found")
+    supabase.table("articles").delete().eq("id", article_id).execute()
+    return {"detail": "Article deleted"}
