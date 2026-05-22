@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { getArticles, searchArticles } from "@/lib/api";
 import { DeleteButton } from "./delete-button";
@@ -31,7 +32,9 @@ export default async function Home({
       <h1 className="mb-6 text-2xl font-bold">
         {q ? `搜索：${q}` : "文章列表"}
       </h1>
-      <SearchBar />
+      <Suspense>
+        <SearchBar />
+      </Suspense>
       {articles.length === 0 ? (
         <p className="text-gray-500">
           {q ? "未找到相关文章" : "暂无文章"}
