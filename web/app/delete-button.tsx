@@ -8,7 +8,7 @@ export function DeleteButton({ articleId }: { articleId: string }) {
 
   return (
     <button
-      className="ml-4 shrink-0 rounded p-1.5 text-stone-300 transition-colors hover:text-red-500 disabled:opacity-50"
+      className="shrink-0 rounded-lg p-2 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
       disabled={isPending}
       title="删除"
       onClick={() => {
@@ -17,9 +17,14 @@ export function DeleteButton({ articleId }: { articleId: string }) {
       }}
     >
       {isPending ? (
-        <span className="text-xs text-stone-400">...</span>
+        <span className="text-xs text-slate-400">...</span>
       ) : (
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

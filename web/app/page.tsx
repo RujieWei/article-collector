@@ -6,10 +6,9 @@ import { SearchBar } from "./search-bar";
 
 function StatusDot({ status }: { status: string }) {
   if (status === "completed") return null;
-  const color =
-    status === "pending" ? "bg-amber-400" : "bg-stone-300";
+  const color = status === "pending" ? "bg-amber-500" : "bg-slate-400";
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-stone-400">
+    <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
       <span className={`inline-block h-1.5 w-1.5 rounded-full ${color}`} />
       {status}
     </span>
@@ -26,51 +25,56 @@ export default async function Home({
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-medium text-stone-900">
+      <h1 className="text-2xl font-bold text-slate-900">
         {q ? `搜索：${q}` : "文章"}
       </h1>
-      <p className="mb-6 text-sm text-stone-400">
-        {q
-          ? `${articles.length} 条结果`
-          : `${articles.length} 篇收藏`}
+      <p className="mt-1 mb-6 text-sm text-slate-500">
+        {q ? `${articles.length} 条结果` : `${articles.length} 篇收藏`}
       </p>
       <Suspense>
         <SearchBar />
       </Suspense>
       {articles.length === 0 ? (
-        <p className="py-12 text-center text-sm text-stone-400">
+        <p className="py-16 text-center text-sm text-slate-400">
           {q ? "未找到相关文章" : "暂无文章"}
         </p>
       ) : (
-        <div className="divide-y divide-stone-200/60">
+        <div className="space-y-3">
           {articles.map((article) => (
             <div
               key={article.id}
-              className="group flex items-start justify-between py-5"
+              className="group relative rounded-xl bg-white p-5 shadow-sm border border-slate-100 transition-shadow hover:shadow-md"
             >
-              <div className="min-w-0 flex-1">
-                <Link
-                  href={`/articles/${article.id}`}
-                  className="text-[15px] font-normal text-stone-800 group-hover:text-stone-600 transition-colors"
-                >
-                  {article.title ?? "无标题"}
-                </Link>
-                <div className="mt-1.5 flex items-center gap-2 text-xs text-stone-400">
-                  {article.author && (
-                    <>
-                      <span>{article.author}</span>
-                      <span className="text-stone-300">·</span>
-                    </>
-                  )}
-                  {article.created_at && (
-                    <span>
-                      {new Date(article.created_at).toLocaleDateString("zh-CN")}
-                    </span>
-                  )}
-                  <StatusDot status={article.status} />
+              <div className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="flex items-start justify-between">
+                <div className="min-w-0 flex-1 pr-4">
+                  <Link
+                    href={`/articles/${article.id}`}
+                    className="text-base font-semibold leading-snug text-slate-800 hover:text-blue-600 transition-colors"
+                  >
+                    {article.title ?? "无标题"}
+                  </Link>
+                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                    {article.author && (
+                      <>
+                        <span className="font-medium text-slate-600">
+                          {article.author}
+                        </span>
+                        <span className="text-slate-300">·</span>
+                      </>
+                    )}
+                    {article.created_at && (
+                      <span>
+                        {new Date(article.created_at).toLocaleDateString(
+                          "zh-CN"
+                        )}
+                      </span>
+                    )}
+                    <StatusDot status={article.status} />
+                  </div>
                 </div>
+                <DeleteButton articleId={article.id} />
               </div>
-              <DeleteButton articleId={article.id} />
             </div>
           ))}
         </div>

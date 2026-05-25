@@ -27,20 +27,25 @@ export default function RootLayout({
       lang="zh"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-stone-50 text-stone-900">
-        <header className="bg-stone-50">
-          <div className="mx-auto max-w-3xl px-6 pb-0 pt-10">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <header className="bg-white border-b border-slate-100">
+          <div className="mx-auto max-w-3xl px-6 py-4">
             <a
               href="/"
-              className="text-sm font-medium tracking-widest uppercase text-stone-400"
+              className="text-base font-semibold tracking-tight text-slate-800"
             >
               Article Collector
             </a>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-6">
+        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-8">
           {children}
         </main>
+        <footer className="border-t border-slate-100 bg-white">
+          <div className="mx-auto max-w-3xl px-6 py-4 text-xs text-slate-400">
+            &copy; 2026 Article Collector
+          </div>
+        </footer>
       </body>
     </html>
   );
