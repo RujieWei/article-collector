@@ -25,8 +25,8 @@ export function NotesEditor({
   return (
     <div>
       <textarea
-        className="w-full rounded-lg border px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-        rows={4}
+        className="w-full resize-none border-b border-stone-200 bg-transparent py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:border-stone-400 focus:outline-none transition-colors"
+        rows={3}
         value={notes}
         onChange={(e) => {
           setNotes(e.target.value);
@@ -34,15 +34,17 @@ export function NotesEditor({
         }}
         placeholder="添加备注..."
       />
-      <div className="mt-2 flex items-center gap-3">
+      <div className="mt-3 flex items-center gap-3">
         <button
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md border border-stone-200 px-3.5 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-100 disabled:opacity-50"
           onClick={handleSave}
           disabled={isPending}
         >
-          {isPending ? "保存中..." : "保存备注"}
+          {isPending ? "保存中..." : "保存"}
         </button>
-        {saved && <span className="text-sm text-green-600">已保存</span>}
+        {saved && (
+          <span className="text-xs text-stone-400">已保存</span>
+        )}
       </div>
     </div>
   );
