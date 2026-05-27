@@ -27,7 +27,11 @@ async def parse_wechat_html(html_content: str, article_id: str) -> str:
         text = tag.get_text()
         tag.replace_with(NavigableString(f"**{text}**"))
 
-    content = soup.get_text("\n")
+    for tag in soup.find_all(["p", "section", "blockquote"]):
+        tag.insert_before(NavigableString("\n\n"))
+        tag.insert_after(NavigableString("\n\n"))
+
+    content = soup.get_text()
     content = re.sub(r"\n{3,}", "\n\n", content).strip()
 
     return content
