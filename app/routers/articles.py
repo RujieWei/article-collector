@@ -4,9 +4,13 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
+import httpx
+from bs4 import BeautifulSoup
+
 from app.database import supabase
 from app.extractor import extract_wechat_article
 from app.parser import parse_wechat_html
+from app.storage import upload_image
 
 router = APIRouter(prefix="/api/v1/articles", tags=["articles"])
 
@@ -33,6 +37,21 @@ class ArticleResponse(BaseModel):
     created_at: Optional[str] = None
 
 
+async def _fetch_og_image(url: str, article_id: str) -> str:
+    try:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            resp.raise_for_status()
+    except httpx.HTTPError:
+        return ""
+    soup = BeautifulSoup(resp.text, "html.parser")
+    og_meta = soup.find("meta", property="og:image")
+    if og_meta and og_meta.get("content"):
+        uploaded = await upload_image(article_id, og_meta["content"])
+        return uploaded or og_meta["content"]
+    return ""
+
+
 async def _process_article(article_id: str, url: str, source: str, html_content: Optional[str] = None):
     import logging
     logger = logging.getLogger(__name__)
@@ -40,12 +59,13 @@ async def _process_article(article_id: str, url: str, source: str, html_content:
         if source == "wechat":
             if html_content:
                 result = await parse_wechat_html(html_content, article_id)
+                cover = result.get("cover_image") or await _fetch_og_image(url, article_id)
                 update_data = {
                     "content": result["content"],
                     "status": "completed",
                 }
-                if result.get("cover_image"):
-                    update_data["cover_image"] = result["cover_image"]
+                if cover:
+                    update_data["cover_image"] = cover
                 supabase.table("articles").update(update_data).eq("id", article_id).execute()
             else:
                 result = await extract_wechat_article(url, article_id)
