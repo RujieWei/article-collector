@@ -7,8 +7,14 @@ from bs4 import BeautifulSoup, NavigableString
 from app.storage import upload_image
 
 
-async def parse_wechat_html(html_content: str, article_id: str) -> str:
+async def parse_wechat_html(html_content: str, article_id: str) -> dict:
     soup = BeautifulSoup(html_content, "html.parser")
+
+    cover_image = ""
+    og_meta = soup.find("meta", property="og:image")
+    if og_meta and og_meta.get("content"):
+        uploaded = await upload_image(article_id, og_meta["content"])
+        cover_image = uploaded or og_meta["content"]
 
     for img in soup.find_all("img"):
         src = img.get("data-src") or img.get("src")
@@ -34,4 +40,4 @@ async def parse_wechat_html(html_content: str, article_id: str) -> str:
     content = soup.get_text()
     content = re.sub(r"\n{3,}", "\n\n", content).strip()
 
-    return content
+    return {"content": content, "cover_image": cover_image}

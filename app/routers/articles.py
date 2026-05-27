@@ -25,6 +25,7 @@ class ArticleResponse(BaseModel):
     title: Optional[str] = None
     author: Optional[str] = None
     content: Optional[str] = None
+    cover_image: Optional[str] = None
     source: str
     status: str
     notes: Optional[str] = None
@@ -38,19 +39,25 @@ async def _process_article(article_id: str, url: str, source: str, html_content:
     try:
         if source == "wechat":
             if html_content:
-                content_md = await parse_wechat_html(html_content, article_id)
-                supabase.table("articles").update({
-                    "content": content_md,
+                result = await parse_wechat_html(html_content, article_id)
+                update_data = {
+                    "content": result["content"],
                     "status": "completed",
-                }).eq("id", article_id).execute()
+                }
+                if result.get("cover_image"):
+                    update_data["cover_image"] = result["cover_image"]
+                supabase.table("articles").update(update_data).eq("id", article_id).execute()
             else:
                 result = await extract_wechat_article(url, article_id)
-                supabase.table("articles").update({
+                update_data = {
                     "title": result["title"],
                     "author": result["author"],
                     "content": result["content"],
                     "status": "completed",
-                }).eq("id", article_id).execute()
+                }
+                if result.get("cover_image"):
+                    update_data["cover_image"] = result["cover_image"]
+                supabase.table("articles").update(update_data).eq("id", article_id).execute()
         else:
             supabase.table("articles").update({"status": "failed"}).eq("id", article_id).execute()
             return
@@ -89,7 +96,7 @@ async def create_article(body: ArticleCreate, background_tasks: BackgroundTasks)
 async def search_articles(q: str, limit: int = 10):
     result = (
         supabase.table("articles")
-        .select("id, url, title, author, source, created_at")
+        .select("id, url, title, author, source, created_at, cover_image")
         .eq("status", "completed")
         .or_(f"title.ilike.%{q}%,content.ilike.%{q}%")
         .order("created_at", desc=True)
@@ -103,7 +110,7 @@ async def search_articles(q: str, limit: int = 10):
 async def list_articles(limit: int = 20, offset: int = 0):
     result = (
         supabase.table("articles")
-        .select("id, url, title, author, source, status, created_at")
+        .select("id, url, title, author, source, status, created_at, cover_image")
         .order("created_at", desc=True)
         .range(offset, offset + limit - 1)
         .execute()

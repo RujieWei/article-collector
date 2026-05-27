@@ -46,8 +46,8 @@ export default async function Home({
               className="group relative rounded-xl bg-white p-5 shadow-sm border border-slate-100 transition-shadow hover:shadow-md"
             >
               <div className="absolute left-0 top-4 bottom-4 w-1 rounded-r-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="flex items-start justify-between">
-                <div className="min-w-0 flex-1 pr-4">
+              <div className="flex items-start gap-4">
+                <div className="min-w-0 flex-1">
                   <Link
                     href={`/articles/${article.id}`}
                     className="text-base font-semibold leading-snug text-slate-800 hover:text-blue-600 transition-colors"
@@ -73,7 +73,16 @@ export default async function Home({
                     <StatusDot status={article.status} />
                   </div>
                 </div>
-                <DeleteButton articleId={article.id} />
+                <div className="flex shrink-0 items-start gap-2">
+                  {article.cover_image && (
+                    <img
+                      src={article.cover_image}
+                      alt=""
+                      className="h-16 w-24 rounded-lg object-cover"
+                    />
+                  )}
+                  <DeleteButton articleId={article.id} />
+                </div>
               </div>
             </div>
           ))}

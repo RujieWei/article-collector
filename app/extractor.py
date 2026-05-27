@@ -24,10 +24,18 @@ async def extract_wechat_article(url: str, article_id: str) -> dict:
         if await author_el.count() > 0:
             author = (await author_el.inner_text()).strip()
 
+        cover_url = ""
+        og_el = page.locator('meta[property="og:image"]')
+        if await og_el.count() > 0:
+            og_src = await og_el.get_attribute("content")
+            if og_src:
+                uploaded = await upload_image(article_id, og_src)
+                cover_url = uploaded or og_src
+
         content_el = page.locator("#js_content")
         if await content_el.count() == 0:
             await browser.close()
-            return {"title": title, "author": author, "content": ""}
+            return {"title": title, "author": author, "content": "", "cover_image": cover_url}
 
         images = await content_el.locator("img").all()
         image_map = {}
@@ -65,4 +73,5 @@ async def extract_wechat_article(url: str, article_id: str) -> dict:
         "title": title,
         "author": author,
         "content": content_md,
+        "cover_image": cover_url,
     }

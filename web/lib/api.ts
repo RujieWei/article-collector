@@ -16,6 +16,7 @@ export type Article = {
   content: string | null;
   source: string;
   status: string;
+  cover_image: string | null;
   notes: string | null;
   published_at: string | null;
   created_at: string | null;
